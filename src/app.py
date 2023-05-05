@@ -3,10 +3,9 @@ import json
 import websocket
 import requests
 import pandas as pd
-import matplotlib.pyplot as plt
 import sqlite3
 import pickle
-from multiprocessing import Process, Value
+from multiprocessing import Process
 
 # Conexión a la base de datos
 conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
