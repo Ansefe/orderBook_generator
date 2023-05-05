@@ -103,6 +103,8 @@ def on_open(ws):
 
 ################################################################################################################
 def create_app():
+    conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
+    cursor = conn.cursor()
     app = Flask(__name__)
     @app.route('/order-book')
     def order_book():
