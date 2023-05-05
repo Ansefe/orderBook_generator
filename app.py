@@ -110,8 +110,8 @@ def create_app():
         cursor.execute("SELECT book FROM orders WHERE id=1")
 
         # Recuperar el objeto serializado
-        serialized_book = cursor.fetchone()[0]
         print(cursor.fetchone())
+        serialized_book = cursor.fetchone()[0]
 
         # Deserialización del objeto
         order_book = pickle.loads(serialized_book)
