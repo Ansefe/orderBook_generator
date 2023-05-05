@@ -17,8 +17,8 @@ def run_websocket():
     ws.run_forever()
 
 # Define la función para ejecutar la aplicación Flask
+app = create_app()
 def run_flask():
-    app = create_app()
     app.run()
 
 if __name__ == "__main__":
