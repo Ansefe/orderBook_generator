@@ -111,6 +111,7 @@ def create_app():
 
         # Recuperar el objeto serializado
         serialized_book = cursor.fetchone()[0]
+        print(cursor.fetchone())
 
         # Deserialización del objeto
         order_book = pickle.loads(serialized_book)
