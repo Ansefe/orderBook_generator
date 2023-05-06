@@ -6,9 +6,16 @@ import pandas as pd
 import sqlite3
 import pickle
 from multiprocessing import Process
+import psycopg2
 
 # Conexión a la base de datos
-conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
+conn = psycopg2.connect(
+    dbname="myorderbook",
+    user="ansefe",
+    password="jKDBjuLmu3GnzICLX1FyGPJhbsBmfG4J",
+    host="dpg-chatdlu7avjcvo2h9vvg-a",
+    port="5432",
+)
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
