@@ -19,17 +19,9 @@ conn = psycopg2.connect(
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
-cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'orders')")
-result = cursor.fetchone()
-if result is not None:
-    # Si la tabla existe, droppearla
-    cursor.execute("DROP TABLE orders")
-    print(f"La tabla ha sido eliminada.")
-else:
-    print(f"La tabla no existe en la base de datos.")
-    cursor.execute('''CREATE TABLE orders
-                    (id INTEGER PRIMARY KEY, 
-                    book BLOB)''')
+cursor.execute('''CREATE TABLE orders
+                  (id INTEGER PRIMARY KEY, 
+                   book BLOB)''')
 
 
 # define las variables necesarias
@@ -60,7 +52,7 @@ def replaceOrderBook(message, orderBook):
                 break
         else:
             orderBook.append(bid)
-            
+
     for ask in asks[:5]:
         for buff in orderBook:
             if buff[0] == ask[0]:
@@ -73,9 +65,9 @@ def replaceOrderBook(message, orderBook):
 def process_message(ws, message):
     global snapshot, orderBook, isFirstEvent, buffer, order_book_json
     message = json.loads(message)
-    
+
     if message['u'] > snapshot['lastUpdateId']:
-        
+
         if (message['U'] <= (snapshot['lastUpdateId'] + 1)) and (message['u'] >= (snapshot['lastUpdateId'] + 1)) and isFirstEvent:
             isFirstEvent = False
             replaceOrderBook(message, orderBook)
@@ -92,15 +84,20 @@ def process_message(ws, message):
     df = df[df['Quantity'] != 0]
     serialized_book = pickle.dumps(df.values.tolist())
     # Inserción en la tabla
-    cursor.execute("INSERT OR REPLACE INTO orders (id, book) VALUES (?, ?) ", ('1', serialized_book,))
+    cursor.execute(
+        "INSERT OR REPLACE INTO orders (id, book) VALUES (?, ?) ", ('1', serialized_book,))
     # Confirmar cambios
     conn.commit()
 
 
 def on_error(ws, error):
     print(error)
+
+
 def on_close(ws):
     print("Connection closed")
+
+
 def on_open(ws):
     global snapshot, orderBook
     print("Connection opened")
@@ -116,10 +113,13 @@ def on_open(ws):
     ws.send(json.dumps(payload))
 
 ################################################################################################################
+
+
 def create_app():
     conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
     cursor = conn.cursor()
     app = Flask(__name__)
+
     @app.route("/")
     def index():
         return "Hello, world!"
@@ -128,7 +128,7 @@ def create_app():
     def order_book():
         # Consulta a la tabla
         cursor.execute("SELECT book FROM orders WHERE id=1")
-        print('appCursor',cursor)
+        print('appCursor', cursor)
 
         # Recuperar el objeto serializado
         print(cursor.fetchone())
@@ -137,5 +137,5 @@ def create_app():
         # Deserialización del objeto
         order_book = pickle.loads(serialized_book)
         return jsonify({'orderBook': order_book})
-    
+
     return app
