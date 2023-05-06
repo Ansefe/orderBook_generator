@@ -19,7 +19,7 @@ conn = psycopg2.connect(
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
-cursor.execute("SELECT book FROM orders WHERE id=1")
+cursor.execute("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'orders')")
 result = cursor.fetchone()
 if result is not None:
     # Si la tabla existe, droppearla
