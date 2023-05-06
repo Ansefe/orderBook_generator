@@ -12,11 +12,11 @@ conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
-print('general',cursor)
 cursor.execute("DROP TABLE orders")
 cursor.execute('''CREATE TABLE orders
                   (id INTEGER PRIMARY KEY, 
                    book BLOB)''')
+print('general',cursor)
 
 
 # define las variables necesarias
@@ -106,12 +106,16 @@ def on_open(ws):
 def create_app():
     conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
     cursor = conn.cursor()
-    print('appCursor',cursor)
     app = Flask(__name__)
+    @app.route("/")
+    def index():
+        return "Hello, world!"
+
     @app.route('/order-book')
     def order_book():
         # Consulta a la tabla
         cursor.execute("SELECT book FROM orders WHERE id=1")
+        print('appCursor',cursor)
 
         # Recuperar el objeto serializado
         print(cursor.fetchone())
