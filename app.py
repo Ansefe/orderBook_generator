@@ -12,6 +12,7 @@ conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
+print('general',cursor)
 cursor.execute("DROP TABLE orders")
 cursor.execute('''CREATE TABLE orders
                   (id INTEGER PRIMARY KEY, 
@@ -105,6 +106,7 @@ def on_open(ws):
 def create_app():
     conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
     cursor = conn.cursor()
+    print('appCursor',cursor)
     app = Flask(__name__)
     @app.route('/order-book')
     def order_book():
