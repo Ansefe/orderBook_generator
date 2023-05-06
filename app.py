@@ -128,14 +128,11 @@ def create_app():
     def order_book():
         # Consulta a la tabla
         cursor.execute("SELECT book FROM orders WHERE id=1")
-        print('appCursor', cursor)
-
+        result = cursor.fetchone()[0]
         # Recuperar el objeto serializado
-        print(cursor.fetchone())
-        if (cursor.fetchone() is None):
-            serialized_book = cursor.fetchone()[0]
+        if (result is not None):
             # Deserialización del objeto
-            order_book = pickle.loads(serialized_book)
+            order_book = pickle.loads(result)
             return jsonify({'orderBook': order_book})
         else:
             return jsonify({'orderBook': []})
