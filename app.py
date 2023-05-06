@@ -21,7 +21,7 @@ conn = psycopg2.connect(
 cursor = conn.cursor()
 cursor.execute('''CREATE TABLE orders
                   (id INTEGER PRIMARY KEY, 
-                   book BLOB)''')
+                   book bytea)''')
 
 
 # define las variables necesarias
