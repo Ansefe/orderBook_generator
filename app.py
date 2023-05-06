@@ -19,11 +19,17 @@ conn = psycopg2.connect(
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
-cursor.execute("DROP TABLE orders")
-cursor.execute('''CREATE TABLE orders
-                  (id INTEGER PRIMARY KEY, 
-                   book BLOB)''')
-print('general',cursor)
+cursor.execute("SELECT book FROM orders WHERE id=1")
+result = cursor.fetchone()
+if result is not None:
+    # Si la tabla existe, droppearla
+    cursor.execute("DROP TABLE orders")
+    print(f"La tabla ha sido eliminada.")
+else:
+    print(f"La tabla no existe en la base de datos.")
+    cursor.execute('''CREATE TABLE orders
+                    (id INTEGER PRIMARY KEY, 
+                    book BLOB)''')
 
 
 # define las variables necesarias
