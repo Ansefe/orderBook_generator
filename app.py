@@ -21,6 +21,7 @@ conn = psycopg2.connect(
 cursor = conn.cursor()
 cursor.execute("CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY, book bytea)")
 conn.commit()
+cursor.close()
 
 
 # define las variables necesarias
@@ -63,6 +64,7 @@ def replaceOrderBook(message, orderBook):
 
 def process_message(ws, message):
     global snapshot, orderBook, isFirstEvent, buffer, order_book_json
+    cursor = conn.cursor()
     message = json.loads(message)
 
     if message['u'] > snapshot['lastUpdateId']:
@@ -86,6 +88,7 @@ def process_message(ws, message):
     cursor.execute("INSERT INTO orders (id, book) VALUES (%s, %s) ON CONFLICT (id) DO UPDATE SET book = EXCLUDED.book", ('1', serialized_book,))
     # Confirmar cambios
     conn.commit()
+    cursor.close()
     print('Obtuve')
 
 
@@ -125,14 +128,17 @@ def create_app():
     @app.route('/order-book')
     def order_book():
         # Consulta a la tabla
+        cursor = conn.cursor()
         cursor.execute("SELECT book FROM orders WHERE id=1")
         result = cursor.fetchone()
         if (result is not None):
             serialized_book = result[0]
             # Deserialización del objeto
             order_book = pickle.loads(serialized_book)
+            cursor.close()
             return jsonify({'orderBook': order_book})
         else:
+            cursor.close()
             return jsonify({'orderBook': []})
 
     return app

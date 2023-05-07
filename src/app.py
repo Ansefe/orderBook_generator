@@ -22,6 +22,7 @@ cursor = conn.cursor()
 
 cursor.execute("CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY, book bytea)")
 conn.commit()
+cursor.close()
 
 app = Flask(__name__)
 
@@ -66,6 +67,7 @@ def replaceOrderBook(message, orderBook):
 def process_message(ws, message):
     global snapshot, orderBook, isFirstEvent, buffer, order_book_json
     message = json.loads(message)
+    cursor = conn.cursor()
     
     if message['u'] > snapshot['lastUpdateId']:
         
@@ -88,6 +90,7 @@ def process_message(ws, message):
     cursor.execute("INSERT INTO orders (id, book) VALUES (%s, %s) ON CONFLICT (id) DO UPDATE SET book = EXCLUDED.book", ('1', serialized_book,))
     # Confirmar cambios
     conn.commit()
+    cursor.close()
     print('Obtuve')
 
 
@@ -113,6 +116,7 @@ def on_open(ws):
 @app.route('/order-book')
 def order_book():
     # Consulta a la tabla
+    cursor = conn.cursor()
     cursor.execute("SELECT book FROM orders WHERE id=1")
 
     # Recuperar el objeto serializado
@@ -121,8 +125,10 @@ def order_book():
         serialized_book = result[0]
         # Deserialización del objeto
         order_book = pickle.loads(serialized_book)
+        cursor.close()
         return jsonify({'orderBook': order_book})
     else:
+        cursor.close()
         return jsonify({'orderBook': []})
 
 
