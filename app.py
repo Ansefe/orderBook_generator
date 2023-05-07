@@ -13,7 +13,7 @@ conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
-cursor.execute('''CREATE TABLE orders
+cursor.execute('''CREATE TABLE IF NOT EXISTS orders
                   (id INTEGER PRIMARY KEY, 
                    book BLOB)''')
 
