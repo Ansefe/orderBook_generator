@@ -116,8 +116,6 @@ def on_open(ws):
 
 
 def create_app():
-    conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
-    cursor = conn.cursor()
     app = Flask(__name__)
 
     @app.route("/")
@@ -127,8 +125,11 @@ def create_app():
     @app.route('/order-book')
     def order_book():
         # Consulta a la tabla
+        conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
+        cursor = conn.cursor()
         cursor.execute("SELECT book FROM orders WHERE id=1")
         result = cursor.fetchone()[0]
+        cursor.close()
         # Recuperar el objeto serializado
         if (result is not None):
             # Deserialización del objeto
