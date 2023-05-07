@@ -9,13 +9,19 @@ from multiprocessing import Process
 import psycopg2
 
 # Conexión a la base de datos
-conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
+conn = psycopg2.connect(
+    dbname="myorderbook",
+    user="ansefe",
+    password="jKDBjuLmu3GnzICLX1FyGPJhbsBmfG4J",
+    host="dpg-chatdlu7avjcvo2h9vvg-a",
+    port="5432",
+)
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
-cursor.execute('''CREATE TABLE IF NOT EXISTS orders
+cursor.execute('''CREATE TABLE orders
                   (id INTEGER PRIMARY KEY, 
-                   book BLOB)''')
+                   book bytea)''')
 
 
 # define las variables necesarias
@@ -77,7 +83,6 @@ def process_message(ws, message):
     # eliminar filas donde Quantity es 0
     df = df[df['Quantity'] != 0]
     serialized_book = pickle.dumps(df.values.tolist())
-    print('new message')
     # Inserción en la tabla
     cursor.execute(
         "INSERT OR REPLACE INTO orders (id, book) VALUES (?, ?) ", ('1', serialized_book,))
