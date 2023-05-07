@@ -19,8 +19,7 @@ conn = psycopg2.connect(
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
-cursor.execute("DROP TABLE IF EXISTS orders")
-conn.commit()
+
 cursor.execute("CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY, book bytea)")
 conn.commit()
 
