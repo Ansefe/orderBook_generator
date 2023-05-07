@@ -9,19 +9,13 @@ from multiprocessing import Process
 import psycopg2
 
 # Conexión a la base de datos
-conn = psycopg2.connect(
-    dbname="myorderbook",
-    user="ansefe",
-    password="jKDBjuLmu3GnzICLX1FyGPJhbsBmfG4J",
-    host="dpg-chatdlu7avjcvo2h9vvg-a",
-    port="5432",
-)
+conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
 cursor.execute('''CREATE TABLE orders
                   (id INTEGER PRIMARY KEY, 
-                   book bytea)''')
+                   book BLOB)''')
 
 
 # define las variables necesarias
