@@ -2,7 +2,7 @@ from app import create_app, process_message, on_open, on_close, on_error
 from multiprocessing import Process
 import websocket
 import gevent.monkey
-gevent.monkey.patch_all()
+# gevent.monkey.patch_all()
 
 symbol = "BTCUSDT"
 ws_url = f"wss://stream.binance.com:443/ws/{symbol}@depth"
