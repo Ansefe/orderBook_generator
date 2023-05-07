@@ -6,16 +6,23 @@ import pandas as pd
 import sqlite3
 import pickle
 from multiprocessing import Process
+import psycopg2
 
 # Conexión a la base de datos
-conn = sqlite3.connect('myOrderBook.db', check_same_thread=False)
+conn = psycopg2.connect(
+    dbname="railway",
+    user="postgres",
+    password="U8ZYQKMJHgNfzR5ITo9u",
+    host="containers-us-west-129.railway.app",
+    port="7304",
+)
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
-cursor.execute("DROP TABLE orders")
-cursor.execute('''CREATE TABLE orders
-                  (id INTEGER PRIMARY KEY, 
-                   book BLOB)''')
+cursor.execute("DROP TABLE IF EXISTS orders")
+conn.commit()
+cursor.execute("CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY, book bytea)")
+conn.commit()
 
 app = Flask(__name__)
 
@@ -79,9 +86,10 @@ def process_message(ws, message):
     df = df[df['Quantity'] != 0]
     serialized_book = pickle.dumps(df.values.tolist())
     # Inserción en la tabla
-    cursor.execute("INSERT OR REPLACE INTO orders (id, book) VALUES (?, ?) ", ('1', serialized_book,))
+    cursor.execute("INSERT INTO orders (id, book) VALUES (%s, %s) ON CONFLICT (id) DO UPDATE SET book = EXCLUDED.book", ('1', serialized_book,))
     # Confirmar cambios
     conn.commit()
+    print('Obtuve')
 
 
 def on_error(ws, error):
@@ -109,11 +117,15 @@ def order_book():
     cursor.execute("SELECT book FROM orders WHERE id=1")
 
     # Recuperar el objeto serializado
-    serialized_book = cursor.fetchone()[0]
+    result = cursor.fetchone()
+    if (result is not None):
+        serialized_book = result[0]
+        # Deserialización del objeto
+        order_book = pickle.loads(serialized_book)
+        return jsonify({'orderBook': order_book})
+    else:
+        return jsonify({'orderBook': []})
 
-    # Deserialización del objeto
-    order_book = pickle.loads(serialized_book)
-    return jsonify({'orderBook': order_book})
 
 # Define la función para ejecutar la conexión al websocket
 def run_websocket():
