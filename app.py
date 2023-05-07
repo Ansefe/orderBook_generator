@@ -77,6 +77,7 @@ def process_message(ws, message):
     # eliminar filas donde Quantity es 0
     df = df[df['Quantity'] != 0]
     serialized_book = pickle.dumps(df.values.tolist())
+    print('new message')
     # Inserción en la tabla
     cursor.execute(
         "INSERT OR REPLACE INTO orders (id, book) VALUES (?, ?) ", ('1', serialized_book,))
