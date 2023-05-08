@@ -1,8 +1,9 @@
-from flask import Flask, jsonify
+from flask import Flask
 import json
 import requests
 import pandas as pd
 import pickle
+from multiprocessing import Process
 import psycopg2
 
 # Conexión a la base de datos
@@ -16,10 +17,12 @@ conn = psycopg2.connect(
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
+
 cursor.execute("CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY, book bytea)")
 conn.commit()
 cursor.close()
 
+# app = Flask(__name__)
 
 # define las variables necesarias
 symbol = "BTCUSDT"
@@ -49,7 +52,7 @@ def replaceOrderBook(message, orderBook):
                 break
         else:
             orderBook.append(bid)
-
+            
     for ask in asks[:5]:
         for buff in orderBook:
             if buff[0] == ask[0]:
@@ -61,11 +64,11 @@ def replaceOrderBook(message, orderBook):
 
 def process_message(ws, message):
     global snapshot, orderBook, isFirstEvent, buffer, order_book_json
-    cursor = conn.cursor()
     message = json.loads(message)
-
+    cursor = conn.cursor()
+    
     if message['u'] > snapshot['lastUpdateId']:
-
+        
         if (message['U'] <= (snapshot['lastUpdateId'] + 1)) and (message['u'] >= (snapshot['lastUpdateId'] + 1)) and isFirstEvent:
             isFirstEvent = False
             replaceOrderBook(message, orderBook)
@@ -89,15 +92,10 @@ def process_message(ws, message):
     print('Obtuve')
 
 
-
 def on_error(ws, error):
     print(error)
-
-
 def on_close(ws):
     print("Connection closed")
-
-
 def on_open(ws):
     global snapshot, orderBook
     print("Connection opened")
@@ -112,30 +110,11 @@ def on_open(ws):
     }
     ws.send(json.dumps(payload))
 
-################################################################################################################
-
-
 def create_app():
     app = Flask(__name__)
 
     @app.route("/")
     def index():
-        return "Hello, world!"
-
-    @app.route('/order-book')
-    def order_book():
-        # Consulta a la tabla
-        cursor = conn.cursor()
-        cursor.execute("SELECT book FROM orders WHERE id=1")
-        result = cursor.fetchone()
-        if (result is not None):
-            serialized_book = result[0]
-            # Deserialización del objeto
-            order_book = pickle.loads(serialized_book)
-            cursor.close()
-            return jsonify({'orderBook': order_book})
-        else:
-            cursor.close()
-            return jsonify({'orderBook': []})
+        return "Websocket App!"
 
     return app
