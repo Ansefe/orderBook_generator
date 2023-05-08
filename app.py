@@ -1,11 +1,8 @@
 from flask import Flask, jsonify
 import json
-import websocket
 import requests
 import pandas as pd
-import sqlite3
 import pickle
-from multiprocessing import Process
 import psycopg2
 
 # Conexión a la base de datos

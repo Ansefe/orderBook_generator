@@ -1,9 +1,8 @@
-from flask import Flask, jsonify
+# from flask import Flask, jsonify
 import json
 import websocket
 import requests
 import pandas as pd
-import sqlite3
 import pickle
 from multiprocessing import Process
 import psycopg2
@@ -24,7 +23,7 @@ cursor.execute("CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY, book 
 conn.commit()
 cursor.close()
 
-app = Flask(__name__)
+# app = Flask(__name__)
 
 # define las variables necesarias
 symbol = "BTCUSDT"
@@ -113,47 +112,55 @@ def on_open(ws):
     ws.send(json.dumps(payload))
 
 ################################################################################################################
-@app.route('/order-book')
-def order_book():
-    # Consulta a la tabla
-    cursor = conn.cursor()
-    cursor.execute("SELECT book FROM orders WHERE id=1")
+# @app.route('/order-book')
+# def order_book():
+#     # Consulta a la tabla
+#     cursor = conn.cursor()
+#     cursor.execute("SELECT book FROM orders WHERE id=1")
 
-    # Recuperar el objeto serializado
-    result = cursor.fetchone()
-    if (result is not None):
-        serialized_book = result[0]
-        # Deserialización del objeto
-        order_book = pickle.loads(serialized_book)
-        cursor.close()
-        return jsonify({'orderBook': order_book})
-    else:
-        cursor.close()
-        return jsonify({'orderBook': []})
+#     # Recuperar el objeto serializado
+#     result = cursor.fetchone()
+#     if (result is not None):
+#         serialized_book = result[0]
+#         # Deserialización del objeto
+#         order_book = pickle.loads(serialized_book)
+#         cursor.close()
+#         return jsonify({'orderBook': order_book})
+#     else:
+#         cursor.close()
+#         return jsonify({'orderBook': []})
 
 
-# Define la función para ejecutar la conexión al websocket
-def run_websocket():
+# # Define la función para ejecutar la conexión al websocket
+# def run_websocket():
+#     ws = websocket.WebSocketApp(ws_url,
+#                                 on_message=process_message,
+#                                 on_open=on_open,
+#                                 on_error=on_error,
+#                                 on_close=on_close)
+#     ws.run_forever()
+
+# # Define la función para ejecutar la aplicación Flask
+# def run_flask():
+#     app.run()
+
+# if __name__ == "__main__":
+#     # Inicia un proceso en segundo plano para la conexión al websocket
+#     websocket_process = Process(target=run_websocket)
+#     # Inicia un proceso en segundo plano para la aplicación Flask
+#     flask_process = Process(target=run_flask)
+    
+#     websocket_process.start()
+#     flask_process.start()
+    
+#     # Espera a que los procesos terminen
+#     websocket_process.join()
+#     flask_process.join()
+
+if __name__ == "__main__":
     ws = websocket.WebSocketApp(ws_url,
                                 on_message=process_message,
                                 on_open=on_open,
                                 on_error=on_error,
                                 on_close=on_close)
     ws.run_forever()
-
-# Define la función para ejecutar la aplicación Flask
-def run_flask():
-    app.run()
-
-if __name__ == "__main__":
-    # Inicia un proceso en segundo plano para la conexión al websocket
-    websocket_process = Process(target=run_websocket)
-    # Inicia un proceso en segundo plano para la aplicación Flask
-    flask_process = Process(target=run_flask)
-    
-    websocket_process.start()
-    flask_process.start()
-    
-    # Espera a que los procesos terminen
-    websocket_process.join()
-    flask_process.join()
