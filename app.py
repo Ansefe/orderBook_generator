@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 import pickle
 import psycopg2
 
@@ -22,6 +23,7 @@ cursor.close()
 
 def create_app():
     app = Flask(__name__)
+    CORS(app)
 
     @app.route("/")
     def index():
