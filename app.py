@@ -4,13 +4,16 @@ import pickle
 import psycopg2
 
 # Conexión a la base de datos
-conn = psycopg2.connect(
-    dbname="railway",
-    user="postgres",
-    password="U8ZYQKMJHgNfzR5ITo9u",
-    host="containers-us-west-129.railway.app",
-    port="7304",
-)
+# conn = psycopg2.connect(
+#     dbname="railway",
+#     user="postgres",
+#     password="U8ZYQKMJHgNfzR5ITo9u",
+#     host="containers-us-west-129.railway.app",
+#     port="7304",
+# )
+
+DATABASE_URL = "postgres://bbjjpnee:3PpJnkfCnQ6jexFZe9gW-DZ0_r83WtTu@mahmud.db.elephantsql.com/bbjjpnee"
+conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 # Cursor para ejecutar comandos SQL
 cursor = conn.cursor()
